@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "宅建一問一答",
+  "name": "宅建一問一答学習アプリ",
+  "description": "宅建試験対策のための一問一答学習アプリです。スマートな学習機能で効率的に学習できます。",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,35 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait",
+  "theme_color": "#007aff",
+  "background_color": "#f0f4f8",
+  "scope": "/",
+  "lang": "ja",
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false
 }
