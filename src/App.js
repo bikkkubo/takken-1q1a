@@ -270,8 +270,6 @@ function App() {
 
     // 統計情報の更新
     const now = Date.now();
-    const questionTime = sessionData.questionStartTime ? 
-      Math.round((now - sessionData.questionStartTime) / 1000) : 0;
 
     // セッションデータの更新
     const updatedSessionData = {
