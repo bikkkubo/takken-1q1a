@@ -150,24 +150,19 @@ class OpenAIService {
 
 【分析してほしい内容】
 1. 思考プロセスの正確性評価
-2. 倫理的妥当性評価
-3. ステークホルダー配慮
-4. 改善すべきポイント（論理面・倫理面）
-5. ケアレスミス防止のアドバイス
-6. 類似問題へのアプローチ方法
+2. 改善すべきポイント
+3. ケアレスミス防止のアドバイス
+4. 類似問題へのアプローチ方法
 
 以下のJSON形式で回答してください：
 {
   "accuracy_score": 0-100の数値,
-  "ethics_score": 0-100の数値,
   "strength_points": ["良かった点1", "良かった点2"],
   "improvement_points": ["改善点1", "改善点2"],
-  "stakeholder_considerations": "ステークホルダー配慮の説明",
   "correct_approach": "正しい思考手順の説明",
   "mistake_analysis": "ミスの原因分析",
   "prevention_tips": ["防止策1", "防止策2"],
-  "similar_questions": "類似問題へのアプローチ",
-  "ethical_guidelines": "倫理的ガイドライン"
+  "similar_questions": "類似問題へのアプローチ"
 }
 `;
   }
@@ -179,33 +174,26 @@ class OpenAIService {
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         
-        // 倫理評価プロパティのフォールバック処理
         return {
           accuracy_score: parsed.accuracy_score || 70,
-          ethics_score: parsed.ethics_score || 75,
           strength_points: parsed.strength_points || ["思考プロセスが記録されています"],
           improvement_points: parsed.improvement_points || ["より詳細な分析が必要です"],
-          stakeholder_considerations: parsed.stakeholder_considerations || "関係者への配慮が適切に考慮されています",
           correct_approach: parsed.correct_approach || "分析中...",
           mistake_analysis: parsed.mistake_analysis || "分析中...",
           prevention_tips: parsed.prevention_tips || ["次回は詳細に記録してください"],
-          similar_questions: parsed.similar_questions || "類似問題の分析を継続してください",
-          ethical_guidelines: parsed.ethical_guidelines || "宅建業務における倫理的基準を意識してください"
+          similar_questions: parsed.similar_questions || "類似問題の分析を継続してください"
         };
       }
       
       // JSON形式でない場合の処理
       return {
         accuracy_score: 70,
-        ethics_score: 75,
         strength_points: ["思考プロセスが記録されています"],
         improvement_points: ["より詳細な分析が必要です"],
-        stakeholder_considerations: "関係者への配慮が適切に考慮されています",
         correct_approach: content,
         mistake_analysis: "分析中...",
         prevention_tips: ["次回は詳細に記録してください"],
-        similar_questions: "類似問題の分析を継続してください",
-        ethical_guidelines: "宅建業務における倫理的基準を意識してください"
+        similar_questions: "類似問題の分析を継続してください"
       };
     } catch (error) {
       console.error('Analysis parsing error:', error);
@@ -223,30 +211,24 @@ class OpenAIService {
     if (isCorrect) {
       return {
         accuracy_score: Math.min(95, 70 + (thinkingQuality * 25)),
-        ethics_score: 75,
         strength_points: this.generateStrengthPoints(questionData, thinkingProcess, true),
         improvement_points: this.generateImprovementPoints(questionData, thinkingProcess, true),
-        stakeholder_considerations: "関係者への配慮が適切に考慮されています",
         correct_approach: this.generateCorrectApproach(questionData, true),
         mistake_analysis: hasThinking ? 
           "正解できていますが、思考プロセスをさらに充実させることで、より確実な解答力が身につきます。" :
           "正解していますが、思考プロセスを記録することで、論理的思考力をさらに伸ばせます。",
         prevention_tips: this.generatePreventionTips(questionData, thinkingProcess, true),
-        similar_questions: this.generateSimilarQuestionAdvice(questionData, true),
-        ethical_guidelines: "宅建業務における倫理的基準を意識してください"
+        similar_questions: this.generateSimilarQuestionAdvice(questionData, true)
       };
     } else {
       return {
         accuracy_score: Math.max(30, 40 + (thinkingQuality * 30)),
-        ethics_score: 75,
         strength_points: this.generateStrengthPoints(questionData, thinkingProcess, false),
         improvement_points: this.generateImprovementPoints(questionData, thinkingProcess, false),
-        stakeholder_considerations: "関係者への配慮が適切に考慮されています",
         correct_approach: this.generateCorrectApproach(questionData, false),
         mistake_analysis: this.generateMistakeAnalysis(questionData, thinkingProcess, userAnswer),
         prevention_tips: this.generatePreventionTips(questionData, thinkingProcess, false),
-        similar_questions: this.generateSimilarQuestionAdvice(questionData, false),
-        ethical_guidelines: "宅建業務における倫理的基準を意識してください"
+        similar_questions: this.generateSimilarQuestionAdvice(questionData, false)
       };
     }
   }
@@ -374,7 +356,6 @@ class OpenAIService {
   getErrorAnalysis() {
     return {
       accuracy_score: 70,
-      ethics_score: 75,
       strength_points: [
         "思考プロセスを記録する習慣が身についています", 
         "問題に真剣に取り組む姿勢が見られます",
@@ -386,7 +367,6 @@ class OpenAIService {
         "なぜその答えを選んだか理由を考えてみてください",
         "間違えた場合は正しい根拠を確認しましょう"
       ],
-      stakeholder_considerations: "関係者への配慮が適切に考慮されています",
       correct_approach: "AI分析は一時的に利用できませんが、自己分析も重要なスキルです。「なぜこの答えになるのか」を論理的に説明できるよう練習しましょう。",
       mistake_analysis: "現在AI分析は利用できませんが、あなたの思考プロセスは記録されています。後で見直して学習パターンを自分で分析してみてください。",
       prevention_tips: [
@@ -395,8 +375,7 @@ class OpenAIService {
         "似たような問題での経験を活かす",
         "時間をかけて丁寧に考える"
       ],
-      similar_questions: "同じ分野の問題では、今回の思考プロセスを参考に、より詳細に根拠を考える練習をしてください。自己分析力も重要なスキルです。",
-      ethical_guidelines: "宅建業務における倫理的基準を意識してください"
+      similar_questions: "同じ分野の問題では、今回の思考プロセスを参考に、より詳細に根拠を考える練習をしてください。自己分析力も重要なスキルです。"
     };
   }
 

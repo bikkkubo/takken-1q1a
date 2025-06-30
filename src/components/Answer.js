@@ -88,9 +88,6 @@ const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, mem
             <div className="accuracy-score">
               思考精度: {aiAnalysis.accuracy_score}/100
             </div>
-            <div className="ethics-score">
-              倫理スコア: {aiAnalysis.ethics_score}/100
-            </div>
           </div>
 
           {/* 良かった点 */}
@@ -194,40 +191,6 @@ const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, mem
               </div>
             )}
           </div>
-
-          {/* ステークホルダー配慮 */}
-          {aiAnalysis.stakeholder_considerations && (
-            <div className="analysis-section">
-              <button 
-                className={`analysis-toggle ${expandedSection === 'stakeholder' ? 'expanded' : ''}`}
-                onClick={() => setExpandedSection(expandedSection === 'stakeholder' ? null : 'stakeholder')}
-              >
-                👥 ステークホルダー配慮
-              </button>
-              {expandedSection === 'stakeholder' && (
-                <div className="analysis-content">
-                  <p>{aiAnalysis.stakeholder_considerations}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 倫理的ガイドライン */}
-          {aiAnalysis.ethical_guidelines && (
-            <div className="analysis-section">
-              <button 
-                className={`analysis-toggle ${expandedSection === 'ethics' ? 'expanded' : ''}`}
-                onClick={() => setExpandedSection(expandedSection === 'ethics' ? null : 'ethics')}
-              >
-                ⚖️ 倫理的ガイドライン
-              </button>
-              {expandedSection === 'ethics' && (
-                <div className="analysis-content">
-                  <p>{aiAnalysis.ethical_guidelines}</p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
 
