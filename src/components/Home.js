@@ -49,6 +49,9 @@ const Home = ({ onStart, reviewCount = 0, userLevel = 'beginner', totalAnswered 
         <button onClick={() => onStart('statistics')}>学習統計を見る</button>
         <button onClick={() => onStart('analytics')}>問題別統計を見る</button>
         <button onClick={() => onStart('memoList')}>メモ一覧を見る</button>
+        <button onClick={() => onStart('dailyReport')} className="daily-report-button">
+          📊 日次学習レポート
+        </button>
       </div>
     </div>
   );

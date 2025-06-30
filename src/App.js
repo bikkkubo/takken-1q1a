@@ -12,6 +12,7 @@ import ConfirmDialog from './components/ConfirmDialog';
 import OfflineIndicator from './components/OfflineIndicator';
 import InstallPrompt from './components/InstallPrompt';
 import MemoList from './components/MemoList';
+import DailyReport from './components/DailyReport';
 import openaiService from './services/openaiService';
 import questionsData from './data.json';
 import './App.css';
@@ -19,7 +20,7 @@ import './App.css';
 function App() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [view, setView] = useState('home'); // home, question, answer, weaknessList, statistics, categories, search, review, analytics, memoList
+  const [view, setView] = useState('home'); // home, question, answer, weaknessList, statistics, categories, search, review, analytics, memoList, dailyReport
   const [isCorrect, setIsCorrect] = useState(false);
   const [weaknesses, setWeaknesses] = useState(() => {
     const saved = localStorage.getItem('weaknesses');
@@ -53,6 +54,18 @@ function App() {
   // AI分析結果の状態管理
   const [aiAnalyses, setAiAnalyses] = useState(() => {
     const saved = localStorage.getItem('aiAnalyses');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // 日次学習セッションの状態管理
+  const [dailyStudySessions, setDailyStudySessions] = useState(() => {
+    const saved = localStorage.getItem('dailyStudySessions');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // 日次分析レポートの状態管理
+  const [dailyReports, setDailyReports] = useState(() => {
+    const saved = localStorage.getItem('dailyReports');
     return saved ? JSON.parse(saved) : {};
   });
 
@@ -123,6 +136,14 @@ function App() {
     localStorage.setItem('aiAnalyses', JSON.stringify(aiAnalyses));
   }, [aiAnalyses]);
 
+  useEffect(() => {
+    localStorage.setItem('dailyStudySessions', JSON.stringify(dailyStudySessions));
+  }, [dailyStudySessions]);
+
+  useEffect(() => {
+    localStorage.setItem('dailyReports', JSON.stringify(dailyReports));
+  }, [dailyReports]);
+
   const handleStart = (mode) => {
     if (mode === 'weakness') {
       setView('weaknessList');
@@ -150,6 +171,10 @@ function App() {
     }
     if (mode === 'memoList') {
       setView('memoList');
+      return;
+    }
+    if (mode === 'dailyReport') {
+      setView('dailyReport');
       return;
     }
 
@@ -313,6 +338,25 @@ function App() {
       // AI分析を実行（非同期）
       analyzeThinkingProcess(questions[currentQuestionIndex], thinkingProcess, userAnswer, correct);
     }
+
+    // 日次学習セッションに記録
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD形式
+    const sessionEntry = {
+      questionNumber: questions[currentQuestionIndex].number,
+      questionText: questions[currentQuestionIndex].question,
+      year: questions[currentQuestionIndex].year,
+      userAnswer: userAnswer,
+      correctAnswer: correctAnswer,
+      isCorrect: correct,
+      thinkingProcess: thinkingProcess,
+      timestamp: Date.now(),
+      responseTime: sessionData.questionStartTime ? Date.now() - sessionData.questionStartTime : 0
+    };
+
+    setDailyStudySessions(prev => ({
+      ...prev,
+      [today]: [...(prev[today] || []), sessionEntry]
+    }));
 
     // 統計情報の更新
     const now = Date.now();
@@ -778,6 +822,13 @@ function App() {
           allQuestions={questionsData}
           onMemoChange={handleMemoChange}
           onGoHome={() => setView('home')}
+        />}
+      {view === 'dailyReport' &&
+        <DailyReport 
+          dailyStudySessions={dailyStudySessions}
+          dailyReports={dailyReports}
+          setDailyReports={setDailyReports}
+          onBack={() => setView('home')}
         />}
       {view === 'question' && questions.length > 0 && (
         <Question 
