@@ -149,20 +149,24 @@ class OpenAIService {
 
 【分析してほしい内容】
 1. 思考プロセスの正確性評価
-2. 正しい思考の手順
-3. 改善すべきポイント
-4. ケアレスミス防止のアドバイス
-5. 類似問題へのアプローチ方法
+2. 倫理的妥当性評価
+3. ステークホルダー配慮
+4. 改善すべきポイント（論理面・倫理面）
+5. ケアレスミス防止のアドバイス
+6. 類似問題へのアプローチ方法
 
 以下のJSON形式で回答してください：
 {
   "accuracy_score": 0-100の数値,
+  "ethics_score": 0-100の数値,
   "strength_points": ["良かった点1", "良かった点2"],
   "improvement_points": ["改善点1", "改善点2"],
+  "stakeholder_considerations": "ステークホルダー配慮の説明",
   "correct_approach": "正しい思考手順の説明",
   "mistake_analysis": "ミスの原因分析",
   "prevention_tips": ["防止策1", "防止策2"],
-  "similar_questions": "類似問題へのアプローチ"
+  "similar_questions": "類似問題へのアプローチ",
+  "ethical_guidelines": "倫理的ガイドライン"
 }
 `;
   }
@@ -172,18 +176,35 @@ class OpenAIService {
       // JSONの抽出を試みる
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        
+        // 倫理評価プロパティのフォールバック処理
+        return {
+          accuracy_score: parsed.accuracy_score || 70,
+          ethics_score: parsed.ethics_score || 75,
+          strength_points: parsed.strength_points || ["思考プロセスが記録されています"],
+          improvement_points: parsed.improvement_points || ["より詳細な分析が必要です"],
+          stakeholder_considerations: parsed.stakeholder_considerations || "関係者への配慮が適切に考慮されています",
+          correct_approach: parsed.correct_approach || "分析中...",
+          mistake_analysis: parsed.mistake_analysis || "分析中...",
+          prevention_tips: parsed.prevention_tips || ["次回は詳細に記録してください"],
+          similar_questions: parsed.similar_questions || "類似問題の分析を継続してください",
+          ethical_guidelines: parsed.ethical_guidelines || "宅建業務における倫理的基準を意識してください"
+        };
       }
       
       // JSON形式でない場合の処理
       return {
         accuracy_score: 70,
+        ethics_score: 75,
         strength_points: ["思考プロセスが記録されています"],
         improvement_points: ["より詳細な分析が必要です"],
+        stakeholder_considerations: "関係者への配慮が適切に考慮されています",
         correct_approach: content,
         mistake_analysis: "分析中...",
         prevention_tips: ["次回は詳細に記録してください"],
-        similar_questions: "類似問題の分析を継続してください"
+        similar_questions: "類似問題の分析を継続してください",
+        ethical_guidelines: "宅建業務における倫理的基準を意識してください"
       };
     } catch (error) {
       console.error('Analysis parsing error:', error);
