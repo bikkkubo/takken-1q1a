@@ -2012,6 +2012,15 @@ body {
   font-weight: bold;
 }
 
+.ethics-score {
+  background-color: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .analysis-section {
   margin-bottom: 12px;
 }
@@ -2054,6 +2063,7 @@ body {
   border-radius: 0 0 8px 8px;
   padding: 15px;
   margin-top: -1px;
+  white-space: pre-wrap;
 }
 
 .analysis-content ul {

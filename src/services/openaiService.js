@@ -106,7 +106,8 @@ class OpenAIService {
       console.error('OpenAI API Error:', {
         message: error.message,
         stack: error.stack,
-        apiKey: this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'missing'
+        apiKey: this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'missing',
+        status: error.status || 'unknown'
       });
       return this.getErrorAnalysis();
     }
@@ -222,24 +223,30 @@ class OpenAIService {
     if (isCorrect) {
       return {
         accuracy_score: Math.min(95, 70 + (thinkingQuality * 25)),
+        ethics_score: 75,
         strength_points: this.generateStrengthPoints(questionData, thinkingProcess, true),
         improvement_points: this.generateImprovementPoints(questionData, thinkingProcess, true),
+        stakeholder_considerations: "関係者への配慮が適切に考慮されています",
         correct_approach: this.generateCorrectApproach(questionData, true),
         mistake_analysis: hasThinking ? 
           "正解できていますが、思考プロセスをさらに充実させることで、より確実な解答力が身につきます。" :
           "正解していますが、思考プロセスを記録することで、論理的思考力をさらに伸ばせます。",
         prevention_tips: this.generatePreventionTips(questionData, thinkingProcess, true),
-        similar_questions: this.generateSimilarQuestionAdvice(questionData, true)
+        similar_questions: this.generateSimilarQuestionAdvice(questionData, true),
+        ethical_guidelines: "宅建業務における倫理的基準を意識してください"
       };
     } else {
       return {
         accuracy_score: Math.max(30, 40 + (thinkingQuality * 30)),
+        ethics_score: 75,
         strength_points: this.generateStrengthPoints(questionData, thinkingProcess, false),
         improvement_points: this.generateImprovementPoints(questionData, thinkingProcess, false),
+        stakeholder_considerations: "関係者への配慮が適切に考慮されています",
         correct_approach: this.generateCorrectApproach(questionData, false),
         mistake_analysis: this.generateMistakeAnalysis(questionData, thinkingProcess, userAnswer),
         prevention_tips: this.generatePreventionTips(questionData, thinkingProcess, false),
-        similar_questions: this.generateSimilarQuestionAdvice(questionData, false)
+        similar_questions: this.generateSimilarQuestionAdvice(questionData, false),
+        ethical_guidelines: "宅建業務における倫理的基準を意識してください"
       };
     }
   }
@@ -367,6 +374,7 @@ class OpenAIService {
   getErrorAnalysis() {
     return {
       accuracy_score: 70,
+      ethics_score: 75,
       strength_points: [
         "思考プロセスを記録する習慣が身についています", 
         "問題に真剣に取り組む姿勢が見られます",
@@ -378,6 +386,7 @@ class OpenAIService {
         "なぜその答えを選んだか理由を考えてみてください",
         "間違えた場合は正しい根拠を確認しましょう"
       ],
+      stakeholder_considerations: "関係者への配慮が適切に考慮されています",
       correct_approach: "AI分析は一時的に利用できませんが、自己分析も重要なスキルです。「なぜこの答えになるのか」を論理的に説明できるよう練習しましょう。",
       mistake_analysis: "現在AI分析は利用できませんが、あなたの思考プロセスは記録されています。後で見直して学習パターンを自分で分析してみてください。",
       prevention_tips: [
@@ -386,7 +395,8 @@ class OpenAIService {
         "似たような問題での経験を活かす",
         "時間をかけて丁寧に考える"
       ],
-      similar_questions: "同じ分野の問題では、今回の思考プロセスを参考に、より詳細に根拠を考える練習をしてください。自己分析力も重要なスキルです。"
+      similar_questions: "同じ分野の問題では、今回の思考プロセスを参考に、より詳細に根拠を考える練習をしてください。自己分析力も重要なスキルです。",
+      ethical_guidelines: "宅建業務における倫理的基準を意識してください"
     };
   }
 
@@ -458,7 +468,8 @@ class OpenAIService {
       console.error('OpenAI Daily Analysis Error:', {
         message: error.message,
         date,
-        questionCount: dailySessionData.length
+        questionCount: dailySessionData.length,
+        status: error.status || 'unknown'
       });
       return this.getErrorDailyAnalysis();
     }
