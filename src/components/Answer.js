@@ -96,12 +96,12 @@ const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, mem
               className={`analysis-toggle ${expandedSection === 'strengths' ? 'expanded' : ''}`}
               onClick={() => setExpandedSection(expandedSection === 'strengths' ? null : 'strengths')}
             >
-              ✅ 良かった点 ({aiAnalysis.strength_points.length})
+              ✅ 良かった点 ({aiAnalysis.strength_points?.length || 0})
             </button>
             {expandedSection === 'strengths' && (
               <div className="analysis-content">
                 <ul>
-                  {aiAnalysis.strength_points.map((point, index) => (
+                  {(aiAnalysis.strength_points || []).map((point, index) => (
                     <li key={index}>{point}</li>
                   ))}
                 </ul>
@@ -115,12 +115,12 @@ const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, mem
               className={`analysis-toggle ${expandedSection === 'improvements' ? 'expanded' : ''}`}
               onClick={() => setExpandedSection(expandedSection === 'improvements' ? null : 'improvements')}
             >
-              🔧 改善すべき点 ({aiAnalysis.improvement_points.length})
+              🔧 改善すべき点 ({aiAnalysis.improvement_points?.length || 0})
             </button>
             {expandedSection === 'improvements' && (
               <div className="analysis-content">
                 <ul>
-                  {aiAnalysis.improvement_points.map((point, index) => (
+                  {(aiAnalysis.improvement_points || []).map((point, index) => (
                     <li key={index}>{point}</li>
                   ))}
                 </ul>
@@ -164,12 +164,12 @@ const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, mem
               className={`analysis-toggle ${expandedSection === 'prevention' ? 'expanded' : ''}`}
               onClick={() => setExpandedSection(expandedSection === 'prevention' ? null : 'prevention')}
             >
-              🛡️ ケアレスミス防止策 ({aiAnalysis.prevention_tips.length})
+              🛡️ ケアレスミス防止策 ({aiAnalysis.prevention_tips?.length || 0})
             </button>
             {expandedSection === 'prevention' && (
               <div className="analysis-content">
                 <ul>
-                  {aiAnalysis.prevention_tips.map((tip, index) => (
+                  {(aiAnalysis.prevention_tips || []).map((tip, index) => (
                     <li key={index}>{tip}</li>
                   ))}
                 </ul>
