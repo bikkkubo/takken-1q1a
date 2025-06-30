@@ -117,7 +117,6 @@ class OpenAIService {
   getMockAnalysis(questionData, thinkingProcess, userAnswer, isCorrect) {
     // 実問題に基づいた動的モック分析
     const hasThinking = thinkingProcess && thinkingProcess.trim().length > 0;
-    const thinkingLength = thinkingProcess ? thinkingProcess.trim().length : 0;
     
     // 思考プロセスの質を評価
     const thinkingQuality = this.evaluateThinkingQuality(thinkingProcess, questionData);
