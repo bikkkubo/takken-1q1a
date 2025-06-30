@@ -9,8 +9,10 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  # Note: REACT_APP_OPENAI_API_KEY should be set in Netlify dashboard
-  # Site settings > Environment variables
+  # Note: Environment variables should be set in Netlify dashboard
+  # Site settings > Environment variables > Add variable
+  # Required: REACT_APP_OPENAI_API_KEY (your OpenAI API key)
+  # Optional: REACT_APP_OPENAI_MODEL (default: gpt-4o-mini)
 
 [[headers]]
   for = "/sw.js"

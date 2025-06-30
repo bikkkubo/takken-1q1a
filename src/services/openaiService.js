@@ -5,17 +5,63 @@ const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 class OpenAIService {
   constructor() {
     this.apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+    this.model = process.env.REACT_APP_OPENAI_MODEL || 'gpt-4o-mini';
     this.isEnabled = !!this.apiKey;
+    
+    // デバッグログ
+    console.log('OpenAI Service initialized:', {
+      hasApiKey: !!this.apiKey,
+      apiKeyLength: this.apiKey ? this.apiKey.length : 0,
+      model: this.model,
+      isEnabled: this.isEnabled
+    });
   }
 
   async analyzeThinkingProcess(questionData, thinkingProcess, userAnswer, isCorrect) {
+    // APIキーの存在チェック
     if (!this.isEnabled) {
-      // APIキーが設定されていない場合のモック応答
+      console.warn('OpenAI API disabled: No API key found');
       return this.getMockAnalysis(questionData, thinkingProcess, userAnswer, isCorrect);
     }
 
+    // APIキーの形式チェック
+    if (!this.apiKey.startsWith('sk-')) {
+      console.error('OpenAI API key format invalid');
+      return this.getErrorAnalysis();
+    }
+
+    console.log('Starting OpenAI API request:', {
+      model: this.model,
+      questionNumber: questionData.number,
+      thinkingLength: thinkingProcess?.length || 0,
+      userAnswer,
+      isCorrect
+    });
+
     try {
       const prompt = this.createAnalysisPrompt(questionData, thinkingProcess, userAnswer, isCorrect);
+      
+      const requestBody = {
+        model: this.model,
+        messages: [
+          {
+            role: 'system',
+            content: 'あなたは宅建試験の学習支援AI です。受験生の思考プロセスを分析し、学習改善のためのフィードバックを提供します。'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.3
+      };
+
+      console.log('OpenAI API request body:', {
+        model: requestBody.model,
+        messageCount: requestBody.messages.length,
+        promptLength: prompt.length
+      });
       
       const response = await fetch(OPENAI_API_URL, {
         method: 'POST',
@@ -23,32 +69,63 @@ class OpenAIService {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.apiKey}`
         },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            {
-              role: 'system',
-              content: 'あなたは宅建試験の学習支援AI です。受験生の思考プロセスを分析し、学習改善のためのフィードバックを提供します。'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 1000,
-          temperature: 0.3
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('OpenAI API response status:', response.status, response.statusText);
+
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        // レスポンス詳細を取得
+        let errorDetails;
+        try {
+          errorDetails = await response.json();
+        } catch (e) {
+          errorDetails = await response.text();
+        }
+        
+        console.error('OpenAI API Error Details:', {
+          status: response.status,
+          statusText: response.statusText,
+          details: errorDetails
+        });
+
+        // 具体的なエラーメッセージを作成
+        const errorMessage = this.createDetailedErrorMessage(response.status, errorDetails);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      console.log('OpenAI API success:', {
+        usage: data.usage,
+        model: data.model,
+        responseLength: data.choices?.[0]?.message?.content?.length || 0
+      });
+
       return this.parseAnalysisResponse(data.choices[0].message.content);
     } catch (error) {
-      console.error('OpenAI API Error:', error);
+      console.error('OpenAI API Error:', {
+        message: error.message,
+        stack: error.stack,
+        apiKey: this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'missing'
+      });
       return this.getErrorAnalysis();
+    }
+  }
+
+  createDetailedErrorMessage(status, errorDetails) {
+    switch (status) {
+      case 401:
+        return `API認証エラー (401): APIキーが無効です。Netlify環境変数を確認してください。`;
+      case 404:
+        return `モデルエラー (404): 指定されたモデル '${this.model}' が利用できません。`;
+      case 429:
+        return `レート制限エラー (429): APIの利用制限に達しました。しばらく待ってから再試行してください。`;
+      case 500:
+      case 502:
+      case 503:
+        return `OpenAIサーバーエラー (${status}): 一時的な問題です。しばらく待ってから再試行してください。`;
+      default:
+        return `API呼び出しエラー (${status}): ${errorDetails?.error?.message || 'Unknown error'}`;
     }
   }
 
@@ -294,9 +371,15 @@ class OpenAIService {
 
   async analyzeDailyStudySession(dailySessionData, date) {
     if (!this.isEnabled) {
-      // APIキーが設定されていない場合のモック応答
+      console.warn('OpenAI Daily Analysis disabled: No API key found');
       return this.getMockDailyAnalysis(dailySessionData, date);
     }
+
+    console.log('Starting OpenAI Daily Analysis:', {
+      date,
+      totalQuestions: dailySessionData.length,
+      model: this.model
+    });
 
     try {
       const prompt = this.createDailyAnalysisPrompt(dailySessionData, date);
@@ -308,7 +391,7 @@ class OpenAIService {
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: this.model,
           messages: [
             {
               role: 'system',
@@ -324,14 +407,38 @@ class OpenAIService {
         })
       });
 
+      console.log('OpenAI Daily Analysis response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        let errorDetails;
+        try {
+          errorDetails = await response.json();
+        } catch (e) {
+          errorDetails = await response.text();
+        }
+        
+        console.error('OpenAI Daily Analysis Error Details:', {
+          status: response.status,
+          details: errorDetails
+        });
+
+        const errorMessage = this.createDetailedErrorMessage(response.status, errorDetails);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      console.log('OpenAI Daily Analysis success:', {
+        usage: data.usage,
+        responseLength: data.choices?.[0]?.message?.content?.length || 0
+      });
+
       return this.parseDailyAnalysisResponse(data.choices[0].message.content);
     } catch (error) {
-      console.error('OpenAI Daily Analysis Error:', error);
+      console.error('OpenAI Daily Analysis Error:', {
+        message: error.message,
+        date,
+        questionCount: dailySessionData.length
+      });
       return this.getErrorDailyAnalysis();
     }
   }
