@@ -115,52 +115,156 @@ class OpenAIService {
   }
 
   getMockAnalysis(questionData, thinkingProcess, userAnswer, isCorrect) {
-    // APIキーがない場合のモック分析
-    const mockAnalyses = {
-      correct: {
-        accuracy_score: 85,
-        strength_points: [
-          "問題文の要点を正確に把握できています",
-          "法的根拠を考慮した論理的な思考です",
-          "結論まで一貫した推理ができています"
-        ],
-        improvement_points: [
-          "より具体的な条文や判例を思い出せると完璧です",
-          "複数の解釈がある場合の検討も加えましょう"
-        ],
-        correct_approach: "問題文のキーワードを特定 → 関連法令の確認 → 具体的事例への適用 → 結論導出という手順が理想的です。",
-        mistake_analysis: "正解していますが、思考プロセスをより体系化することで、難しい問題でも対応できるようになります。",
-        prevention_tips: [
-          "問題文に線を引いて重要部分をマークする",
-          "「なぜ」を3回繰り返して根拠を深掘りする",
-          "対立する解釈がないか常に確認する"
-        ],
-        similar_questions: "同じ分野の問題では、今回の思考パターンを基準として、例外規定や特別な場合にも注意を向けてください。"
-      },
-      incorrect: {
-        accuracy_score: 45,
-        strength_points: [
-          "問題文を最後まで読んで理解しようとしています",
-          "自分なりの理由付けを行っています"
-        ],
-        improvement_points: [
-          "キーワードの意味を正確に理解する必要があります",
-          "関連する法令知識の確認が不足しています",
-          "結論を急がず、段階的に検討しましょう"
-        ],
-        correct_approach: "この問題では、まず問題文の「○○の場合」という条件を正確に把握し、該当する法令を思い出してから適用することが重要です。",
-        mistake_analysis: "思考の方向性は良いですが、基礎知識の確認と、問題文の詳細な読み取りが不足していました。",
-        prevention_tips: [
-          "問題文のキーワードを確実に理解してから答える",
-          "わからない用語は「知らない」と認識する",
-          "消去法も使って確実性を高める",
-          "時間をかけても正確性を優先する"
-        ],
-        similar_questions: "この分野の問題では、基本概念の正確な理解が最重要です。テキストで基礎を固めてから応用問題に取り組みましょう。"
-      }
-    };
+    // 実問題に基づいた動的モック分析
+    const hasThinking = thinkingProcess && thinkingProcess.trim().length > 0;
+    const thinkingLength = thinkingProcess ? thinkingProcess.trim().length : 0;
+    
+    // 思考プロセスの質を評価
+    const thinkingQuality = this.evaluateThinkingQuality(thinkingProcess, questionData);
+    
+    if (isCorrect) {
+      return {
+        accuracy_score: Math.min(95, 70 + (thinkingQuality * 25)),
+        strength_points: this.generateStrengthPoints(questionData, thinkingProcess, true),
+        improvement_points: this.generateImprovementPoints(questionData, thinkingProcess, true),
+        correct_approach: this.generateCorrectApproach(questionData, true),
+        mistake_analysis: hasThinking ? 
+          "正解できていますが、思考プロセスをさらに充実させることで、より確実な解答力が身につきます。" :
+          "正解していますが、思考プロセスを記録することで、論理的思考力をさらに伸ばせます。",
+        prevention_tips: this.generatePreventionTips(questionData, thinkingProcess, true),
+        similar_questions: this.generateSimilarQuestionAdvice(questionData, true)
+      };
+    } else {
+      return {
+        accuracy_score: Math.max(30, 40 + (thinkingQuality * 30)),
+        strength_points: this.generateStrengthPoints(questionData, thinkingProcess, false),
+        improvement_points: this.generateImprovementPoints(questionData, thinkingProcess, false),
+        correct_approach: this.generateCorrectApproach(questionData, false),
+        mistake_analysis: this.generateMistakeAnalysis(questionData, thinkingProcess, userAnswer),
+        prevention_tips: this.generatePreventionTips(questionData, thinkingProcess, false),
+        similar_questions: this.generateSimilarQuestionAdvice(questionData, false)
+      };
+    }
+  }
 
-    return isCorrect ? mockAnalyses.correct : mockAnalyses.incorrect;
+  evaluateThinkingQuality(thinkingProcess, questionData) {
+    if (!thinkingProcess || thinkingProcess.trim().length === 0) return 0.1;
+    
+    const thinking = thinkingProcess.toLowerCase();
+    const question = questionData.question.toLowerCase();
+    
+    let quality = 0.3; // 基本点
+    
+    // 法律用語の使用をチェック
+    const legalTerms = ['法律', '条文', '規定', '権利', '義務', '契約', '所有権', '借地', '借家', '都市計画', '建築', '不動産'];
+    const usedTerms = legalTerms.filter(term => thinking.includes(term) || question.includes(term));
+    quality += Math.min(0.3, usedTerms.length * 0.1);
+    
+    // 論理的思考の構造をチェック
+    if (thinking.includes('なぜなら') || thinking.includes('理由') || thinking.includes('根拠')) quality += 0.2;
+    if (thinking.includes('したがって') || thinking.includes('よって') || thinking.includes('ゆえに')) quality += 0.2;
+    
+    // 長さによる加点
+    if (thinkingProcess.trim().length > 50) quality += 0.2;
+    if (thinkingProcess.trim().length > 100) quality += 0.1;
+    
+    return Math.min(1.0, quality);
+  }
+
+  generateStrengthPoints(questionData, thinkingProcess, isCorrect) {
+    const points = [];
+    const hasThinking = thinkingProcess && thinkingProcess.trim().length > 0;
+    
+    if (isCorrect) {
+      points.push("正確な判断ができています");
+      if (hasThinking) {
+        points.push("思考プロセスを言語化する習慣があります");
+        if (thinkingProcess.length > 50) {
+          points.push("詳細な思考記録ができています");
+        }
+      }
+      points.push("宅建の基本的な考え方が身についています");
+    } else {
+      if (hasThinking) {
+        points.push("問題に真剣に向き合う姿勢があります");
+        points.push("自分なりの考えを整理しようとしています");
+      } else {
+        points.push("問題に取り組む意欲があります");
+      }
+      points.push("学習を継続する姿勢があります");
+    }
+    
+    return points;
+  }
+
+  generateImprovementPoints(questionData, thinkingProcess, isCorrect) {
+    const points = [];
+    const hasThinking = thinkingProcess && thinkingProcess.trim().length > 0;
+    
+    if (!hasThinking) {
+      points.push("思考プロセスを詳しく記録してみましょう");
+      points.push("なぜその答えを選んだか理由を言語化してください");
+    } else if (thinkingProcess.trim().length < 30) {
+      points.push("思考プロセスをより詳細に記録してみましょう");
+    }
+    
+    if (!isCorrect) {
+      points.push("問題文のキーワードに注目する習慣をつけましょう");
+      points.push("関連する法律知識を確認してから答えましょう");
+      points.push("結論を急がず段階的に検討してください");
+    } else {
+      points.push("法的根拠をより明確にできるとさらに良いです");
+      points.push("例外規定についても考慮してみてください");
+    }
+    
+    return points;
+  }
+
+  generateCorrectApproach(questionData, isCorrect) {
+    const approaches = [
+      "問題文を注意深く読み、重要なキーワードを特定する",
+      "関連する法令や規定を思い出す", 
+      "具体的な事例に法律を適用して考える",
+      "論理的に結論を導出する"
+    ];
+    
+    return `宅建試験では次の手順が効果的です：${approaches.join(' → ')}。${isCorrect ? '今回のようなアプローチを他の問題でも活用してください。' : 'この手順を意識して解き直してみてください。'}`;
+  }
+
+  generateMistakeAnalysis(questionData, thinkingProcess, userAnswer) {
+    const hasThinking = thinkingProcess && thinkingProcess.trim().length > 0;
+    
+    if (!hasThinking) {
+      return "思考プロセスが記録されていないため詳細な分析はできませんが、問題文の読み取りと法律知識の確認を重点的に行ってください。";
+    }
+    
+    return "思考の取り組み方は良いですが、問題文の詳細な読み取りと基礎知識の確認をより丁寧に行うことで改善できそうです。";
+  }
+
+  generatePreventionTips(questionData, thinkingProcess, isCorrect) {
+    const tips = [];
+    
+    tips.push("問題文の重要語句に注意を向ける");
+    tips.push("関連する法律の基本原則を思い出す");
+    
+    if (!isCorrect) {
+      tips.push("分からない場合は基本に立ち返る");
+      tips.push("時間をかけて丁寧に検討する");
+    } else {
+      tips.push("論理的な根拠を明確にする習慣をつける");
+      tips.push("例外的なケースにも注意を向ける");
+    }
+    
+    return tips;
+  }
+
+  generateSimilarQuestionAdvice(questionData, isCorrect) {
+    const year = questionData.year;
+    const advice = isCorrect ? 
+      `${year}年度の類似問題では、今回と同様の思考パターンを活用できます。` :
+      `${year}年度の類似問題に取り組む際は、基礎知識の確認を重点的に行ってください。`;
+    
+    return advice + "宅建試験では一貫した解法パターンの習得が重要です。";
   }
 
   getErrorAnalysis() {
