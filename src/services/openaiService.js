@@ -5,7 +5,7 @@ const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 class OpenAIService {
   constructor() {
     this.apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-    this.model = process.env.REACT_APP_OPENAI_MODEL || 'gpt-4o-mini';
+    this.model = process.env.REACT_APP_OPENAI_MODEL || 'o3';
     this.isEnabled = !!this.apiKey;
     
     // デバッグログ

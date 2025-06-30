@@ -12,7 +12,7 @@
   # Note: Environment variables should be set in Netlify dashboard
   # Site settings > Environment variables > Add variable
   # Required: REACT_APP_OPENAI_API_KEY (your OpenAI API key)
-  # Optional: REACT_APP_OPENAI_MODEL (default: gpt-4o-mini)
+  # Optional: REACT_APP_OPENAI_MODEL (default: o3, alternatives: o3-mini, gpt-4o-mini)
 
 [[headers]]
   for = "/sw.js"

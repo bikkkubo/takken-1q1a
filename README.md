@@ -52,22 +52,24 @@
    
    # APIキーとモデルを設定
    REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
-   REACT_APP_OPENAI_MODEL=gpt-4o-mini
+   REACT_APP_OPENAI_MODEL=o3
    ```
 
 3. **Netlify本番環境**
    - Netlifyダッシュボード → Site settings → Environment variables
    - 必須: `REACT_APP_OPENAI_API_KEY` (あなたのOpenAI APIキー)
-   - 推奨: `REACT_APP_OPENAI_MODEL` (推奨値: `gpt-4o-mini`)
+   - 推奨: `REACT_APP_OPENAI_MODEL` (推奨値: `o3`)
 
 ### AI分析モデルについて
-- **gpt-4o-mini** (推奨): コスト効率が良く、十分な分析精度
-- **gpt-4o**: より高精度だが高コスト
-- 未設定の場合は gpt-4o-mini が使用されます
+- **o3** (推奨): 最新の推論モデル、高い論理性・一貫性、宅建分析に最適
+- **o3-mini**: o3の高速版、レスポンス重視の場合
+- **gpt-4o-mini**: コスト重視の場合（互換性維持）
+- 未設定の場合は o3 が使用されます
 
 ### API使用量とコスト
-- **gpt-4o-mini**: 1回あたり約500-1000トークン、月100回で約$0.5-1
-- **gpt-4o**: 1回あたり約1000トークン、月100回で約$3-5  
+- **o3**: 1回あたり約1000トークン、月100回で約$1-3（高精度推論）
+- **o3-mini**: 1回あたり約500-1000トークン、月100回で約$0.5-1.5（高速）
+- **gpt-4o-mini**: 1回あたり約500-1000トークン、月100回で約$0.5-1（経済的）
 - APIキー未設定でも高品質なモック分析機能が動作
 - ブラウザの開発者ツールでAPI呼び出し詳細を確認可能
 
