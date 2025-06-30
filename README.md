@@ -1,70 +1,108 @@
-# Getting Started with Create React App
+# 宅建一問一答PWAアプリ
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+宅建試験対策のための学習アプリです。思考プロセス記録とAI分析機能により、効率的な学習を支援します。
 
-## Available Scripts
+## 🚀 デプロイ済みURL
+[こちらからアクセス](https://takken-quiz-app.netlify.app)
 
-In the project directory, you can run:
+## ✨ 主要機能
 
-### `npm start`
+### 📚 学習機能
+- **一問一答形式**：○×問題で効率的学習
+- **分野別学習**：年度・カテゴリ別の問題選択
+- **適応学習**：習熟度に応じた問題出題
+- **復習スケジュール**：間隔反復学習システム
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 🧠 思考プロセス分析
+- **思考記録**：回答前の思考手順を詳細記録
+- **AI分析**：ChatGPT-4oによる思考プロセス分析
+- **改善提案**：ケアレスミス防止策の提案
+- **学習パターン分析**：個別の思考傾向を把握
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 📊 学習管理
+- **詳細統計**：正答率、学習時間、セッション履歴
+- **問題別分析**：各問題の回答履歴と正答率
+- **弱点管理**：苦手問題の自動抽出と集中学習
+- **メモ機能**：問題ごとのメモ記録と一覧表示
 
-### `npm test`
+### 📱 PWA機能
+- **オフライン学習**：インターネット未接続でも利用可能
+- **ホーム画面追加**：アプリのようにインストール
+- **高速読み込み**：Service Workerによるキャッシュ
+- **モバイル最適化**：スワイプ操作対応
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ 技術スタック
+- **Frontend**: React 19, PWA
+- **AI**: OpenAI GPT-4o API
+- **Storage**: LocalStorage（永続化）
+- **Deploy**: Netlify
+- **Styling**: CSS3, Responsive Design
 
-### `npm run build`
+## ⚙️ AI分析機能の設定
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### OpenAI APIキーの設定
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. **OpenAI APIキーを取得**
+   - [OpenAI Platform](https://platform.openai.com/api-keys)でAPIキーを生成
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. **ローカル開発環境**
+   ```bash
+   # .envファイルを作成
+   cp .env.example .env
+   
+   # APIキーを設定
+   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   ```
 
-### `npm run eject`
+3. **Netlify本番環境**
+   - Netlifyダッシュボード → Site settings → Environment variables
+   - 変数名: `REACT_APP_OPENAI_API_KEY`
+   - 値: あなたのOpenAI APIキー
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### API使用量について
+- 思考プロセス分析は1回あたり約1000トークン使用
+- 月間100回程度の利用で約$3-5の料金
+- APIキー未設定でもモック分析機能が動作
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🚀 ローカル開発
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+# 依存関係のインストール
+npm install
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# 開発サーバー起動
+npm start
 
-## Learn More
+# 本番ビルド
+npm run build
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 📱 PWAインストール手順
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### iPhone/iPad
+1. Safariでアプリにアクセス
+2. 共有ボタン →「ホーム画面に追加」
+3. アプリ名を確認して「追加」
 
-### Code Splitting
+### Android
+1. Chrome でアプリにアクセス
+2. メニュー → 「ホーム画面に追加」
+3. アプリ名を確認して「追加」
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🎯 使用方法
 
-### Analyzing the Bundle Size
+1. **学習開始**：ホーム画面から学習モードを選択
+2. **思考記録**：問題を読んで思考プロセスを入力
+3. **回答選択**：○×で回答
+4. **AI分析確認**：解説画面でAI分析結果を確認
+5. **継続学習**：復習スケジュールに従って学習継続
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 📄 ライセンス
+MIT License
 
-### Making a Progressive Web App
+## 🤝 貢献
+プルリクエストやイシューの報告を歓迎します。
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**宅建試験合格に向けて効果的な学習を！** 🎉

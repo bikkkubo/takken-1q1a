@@ -9,6 +9,8 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  # Note: REACT_APP_OPENAI_API_KEY should be set in Netlify dashboard
+  # Site settings > Environment variables
 
 [[headers]]
   for = "/sw.js"

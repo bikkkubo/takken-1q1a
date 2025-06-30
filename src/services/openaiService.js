@@ -24,7 +24,7 @@ class OpenAIService {
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'o3',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'system',
