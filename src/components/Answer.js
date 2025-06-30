@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 
-const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, memo, onMemoChange, onGoHome, onPrevious, currentIndex, totalQuestions }) => {
+const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, memo, onMemoChange, onGoHome, onPrevious, currentIndex, totalQuestions, thinkingProcess, aiAnalysis }) => {
   const [currentMemo, setCurrentMemo] = useState(memo || '');
   const [showMemo, setShowMemo] = useState(false);
+  const [expandedSection, setExpandedSection] = useState(null);
 
   useEffect(() => {
     setCurrentMemo(memo || '');
@@ -61,6 +62,136 @@ const Answer = ({ question, isCorrect, onNext, onToggleWeakness, isWeakness, mem
             <div className="memo-content">{memo}</div>
           </div>
         )
+      )}
+
+      {/* 思考プロセス表示 */}
+      {thinkingProcess && (
+        <div className="thinking-process-display">
+          <h4>あなたの思考プロセス</h4>
+          <div className="thinking-content">{thinkingProcess.thinking}</div>
+          <div className="thinking-meta">
+            <span className="thinking-result">
+              結果: {thinkingProcess.isCorrect ? '✅ 正解' : '❌ 不正解'}
+            </span>
+            <span className="thinking-answer">
+              回答: {thinkingProcess.userAnswer}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* AI分析結果表示 */}
+      {aiAnalysis && (
+        <div className="ai-analysis-display">
+          <div className="ai-analysis-header">
+            <h4>🤖 AI思考プロセス分析</h4>
+            <div className="accuracy-score">
+              思考精度: {aiAnalysis.accuracy_score}/100
+            </div>
+          </div>
+
+          {/* 良かった点 */}
+          <div className="analysis-section">
+            <button 
+              className={`analysis-toggle ${expandedSection === 'strengths' ? 'expanded' : ''}`}
+              onClick={() => setExpandedSection(expandedSection === 'strengths' ? null : 'strengths')}
+            >
+              ✅ 良かった点 ({aiAnalysis.strength_points.length})
+            </button>
+            {expandedSection === 'strengths' && (
+              <div className="analysis-content">
+                <ul>
+                  {aiAnalysis.strength_points.map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* 改善点 */}
+          <div className="analysis-section">
+            <button 
+              className={`analysis-toggle ${expandedSection === 'improvements' ? 'expanded' : ''}`}
+              onClick={() => setExpandedSection(expandedSection === 'improvements' ? null : 'improvements')}
+            >
+              🔧 改善すべき点 ({aiAnalysis.improvement_points.length})
+            </button>
+            {expandedSection === 'improvements' && (
+              <div className="analysis-content">
+                <ul>
+                  {aiAnalysis.improvement_points.map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* 正しいアプローチ */}
+          <div className="analysis-section">
+            <button 
+              className={`analysis-toggle ${expandedSection === 'approach' ? 'expanded' : ''}`}
+              onClick={() => setExpandedSection(expandedSection === 'approach' ? null : 'approach')}
+            >
+              💡 正しい思考手順
+            </button>
+            {expandedSection === 'approach' && (
+              <div className="analysis-content">
+                <p>{aiAnalysis.correct_approach}</p>
+              </div>
+            )}
+          </div>
+
+          {/* ミス分析 */}
+          <div className="analysis-section">
+            <button 
+              className={`analysis-toggle ${expandedSection === 'mistake' ? 'expanded' : ''}`}
+              onClick={() => setExpandedSection(expandedSection === 'mistake' ? null : 'mistake')}
+            >
+              🔍 ミス分析
+            </button>
+            {expandedSection === 'mistake' && (
+              <div className="analysis-content">
+                <p>{aiAnalysis.mistake_analysis}</p>
+              </div>
+            )}
+          </div>
+
+          {/* 防止策 */}
+          <div className="analysis-section">
+            <button 
+              className={`analysis-toggle ${expandedSection === 'prevention' ? 'expanded' : ''}`}
+              onClick={() => setExpandedSection(expandedSection === 'prevention' ? null : 'prevention')}
+            >
+              🛡️ ケアレスミス防止策 ({aiAnalysis.prevention_tips.length})
+            </button>
+            {expandedSection === 'prevention' && (
+              <div className="analysis-content">
+                <ul>
+                  {aiAnalysis.prevention_tips.map((tip, index) => (
+                    <li key={index}>{tip}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* 類似問題へのアプローチ */}
+          <div className="analysis-section">
+            <button 
+              className={`analysis-toggle ${expandedSection === 'similar' ? 'expanded' : ''}`}
+              onClick={() => setExpandedSection(expandedSection === 'similar' ? null : 'similar')}
+            >
+              📚 類似問題へのアプローチ
+            </button>
+            {expandedSection === 'similar' && (
+              <div className="analysis-content">
+                <p>{aiAnalysis.similar_questions}</p>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="answer-actions">

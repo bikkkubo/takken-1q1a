@@ -11,13 +11,15 @@ import QuestionAnalytics from './components/QuestionAnalytics';
 import ConfirmDialog from './components/ConfirmDialog';
 import OfflineIndicator from './components/OfflineIndicator';
 import InstallPrompt from './components/InstallPrompt';
+import MemoList from './components/MemoList';
+import openaiService from './services/openaiService';
 import questionsData from './data.json';
 import './App.css';
 
 function App() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [view, setView] = useState('home'); // home, question, answer, weaknessList, statistics, categories, search, review, analytics
+  const [view, setView] = useState('home'); // home, question, answer, weaknessList, statistics, categories, search, review, analytics, memoList
   const [isCorrect, setIsCorrect] = useState(false);
   const [weaknesses, setWeaknesses] = useState(() => {
     const saved = localStorage.getItem('weaknesses');
@@ -39,6 +41,18 @@ function App() {
   // 問題別統計情報の状態管理
   const [questionStats, setQuestionStats] = useState(() => {
     const saved = localStorage.getItem('questionStats');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // 思考プロセス記録の状態管理
+  const [thinkingProcesses, setThinkingProcesses] = useState(() => {
+    const saved = localStorage.getItem('thinkingProcesses');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // AI分析結果の状態管理
+  const [aiAnalyses, setAiAnalyses] = useState(() => {
+    const saved = localStorage.getItem('aiAnalyses');
     return saved ? JSON.parse(saved) : {};
   });
 
@@ -101,6 +115,14 @@ function App() {
     localStorage.setItem('sessionProgress', JSON.stringify(sessionProgress));
   }, [sessionProgress]);
 
+  useEffect(() => {
+    localStorage.setItem('thinkingProcesses', JSON.stringify(thinkingProcesses));
+  }, [thinkingProcesses]);
+
+  useEffect(() => {
+    localStorage.setItem('aiAnalyses', JSON.stringify(aiAnalyses));
+  }, [aiAnalyses]);
+
   const handleStart = (mode) => {
     if (mode === 'weakness') {
       setView('weaknessList');
@@ -124,6 +146,10 @@ function App() {
     }
     if (mode === 'analytics') {
       setView('analytics');
+      return;
+    }
+    if (mode === 'memoList') {
+      setView('memoList');
       return;
     }
 
@@ -263,10 +289,30 @@ function App() {
     setView('question');
   }
 
-  const handleAnswer = (userAnswer) => {
+  const handleAnswer = (userAnswer, thinkingProcess = '') => {
     const correctAnswer = questions[currentQuestionIndex].result;
     const correct = userAnswer === correctAnswer;
     setIsCorrect(correct);
+
+    // 思考プロセスを保存
+    if (thinkingProcess.trim()) {
+      const questionNumber = questions[currentQuestionIndex].number;
+      const thinkingData = {
+        thinking: thinkingProcess,
+        timestamp: Date.now(),
+        isCorrect: correct,
+        userAnswer: userAnswer,
+        correctAnswer: correctAnswer
+      };
+      
+      setThinkingProcesses(prev => ({
+        ...prev,
+        [questionNumber]: thinkingData
+      }));
+
+      // AI分析を実行（非同期）
+      analyzeThinkingProcess(questions[currentQuestionIndex], thinkingProcess, userAnswer, correct);
+    }
 
     // 統計情報の更新
     const now = Date.now();
@@ -576,6 +622,55 @@ function App() {
     };
   };
 
+  // 思考プロセスを取得
+  const getThinkingProcess = (questionNumber) => {
+    return thinkingProcesses[questionNumber] || null;
+  };
+
+  // AI分析結果を取得
+  const getAiAnalysis = (questionNumber) => {
+    return aiAnalyses[questionNumber] || null;
+  };
+
+  // 思考プロセスのAI分析を実行
+  const analyzeThinkingProcess = async (questionData, thinkingProcess, userAnswer, isCorrect) => {
+    try {
+      const analysis = await openaiService.analyzeThinkingProcess(
+        questionData, 
+        thinkingProcess, 
+        userAnswer, 
+        isCorrect
+      );
+      
+      setAiAnalyses(prev => ({
+        ...prev,
+        [questionData.number]: {
+          ...analysis,
+          timestamp: Date.now(),
+          questionNumber: questionData.number
+        }
+      }));
+    } catch (error) {
+      console.error('AI分析エラー:', error);
+      // エラーの場合はデフォルト分析を保存
+      setAiAnalyses(prev => ({
+        ...prev,
+        [questionData.number]: {
+          accuracy_score: 50,
+          strength_points: ["思考プロセスが記録されました"],
+          improvement_points: ["分析中にエラーが発生しました"],
+          correct_approach: "継続的な学習を続けてください",
+          mistake_analysis: "分析機能に問題が発生しています",
+          prevention_tips: ["記録の継続が重要です"],
+          similar_questions: "パターン分析は後日確認できます",
+          timestamp: Date.now(),
+          questionNumber: questionData.number,
+          error: true
+        }
+      }));
+    }
+  };
+
   // 現在のセッションモードを特定
   const getCurrentSessionMode = () => {
     for (const [mode, progress] of Object.entries(sessionProgress)) {
@@ -677,6 +772,13 @@ function App() {
           questionStats={questionStats}
           onGoHome={() => setView('home')}
         />}
+      {view === 'memoList' &&
+        <MemoList 
+          memos={memos}
+          allQuestions={questionsData}
+          onMemoChange={handleMemoChange}
+          onGoHome={() => setView('home')}
+        />}
       {view === 'question' && questions.length > 0 && (
         <Question 
           question={questions[currentQuestionIndex]} 
@@ -703,6 +805,8 @@ function App() {
           onPrevious={handlePrevious}
           currentIndex={currentQuestionIndex}
           totalQuestions={questions.length}
+          thinkingProcess={getThinkingProcess(questions[currentQuestionIndex].number)}
+          aiAnalysis={getAiAnalysis(questions[currentQuestionIndex].number)}
         />
       )}
       
